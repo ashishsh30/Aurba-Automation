@@ -24,5 +24,4 @@ jobs:
       - name: Run Script
         env:
           CENTRAL_ACCESS_TOKEN: ${{ secrets.CENTRAL_ACCESS_TOKEN }}
-          CENTRAL_BASE_URL: "https://apigw-app2.central.arubanetworks.com"
         run: python create_template.py
