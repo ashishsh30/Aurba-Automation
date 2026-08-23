@@ -1,0 +1,30 @@
+name: Deploy Group Variables to Aruba Central
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'inventory.yml'
+
+jobs:
+  sync-variables:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install requests pyyaml
+
+      - name: Push Variables to Aruba Central
+        env:
+          ARUBA_CENTRAL_URL: ${{ secrets.ARUBA_CENTRAL_URL }}
+          ARUBA_CENTRAL_TOKEN: ${{ secrets.ARUBA_CENTRAL_TOKEN }}
+        run: python push_vars.py
