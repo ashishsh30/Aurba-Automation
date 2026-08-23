@@ -2,10 +2,14 @@ import os
 import requests
 
 # === CONFIGURATION ===
-GROUP_NAME = "Test-new"                   # Target group name in Aruba Central
-NEW_TEMPLATE_NAME = "Gateway_Template_V2" # Name for your NEW template
-DEVICE_TYPE = "MobilityController"        # Device type (MobilityController / IAP / ArubaSwitch)
-FILE_PATH = "gateway_template.cfg"        # Local path to config template file
+GROUP_NAME = "Test-new"                   # Target group name
+NEW_TEMPLATE_NAME = "Gateway_Template_V3" # Distinct template name
+DEVICE_TYPE = "MobilityController"        # Device type
+FILE_PATH = "gateway_template.cfg"        # Local config template file
+
+# Specify a distinct model or version to coexist with the existing template
+MODEL = "7005"                            # Specific model (e.g., 7005, 7010, 7210, etc.)
+VERSION = "8.10.0.0"                      # Specific version string (or "ALL" if model differs)
 # =====================
 
 CENTRAL_BASE_URL = "https://api-ap.central.arubanetworks.com"
@@ -24,25 +28,24 @@ url = f"{CENTRAL_BASE_URL}/configuration/v1/groups/{GROUP_NAME}/templates"
 params = {
     "name": NEW_TEMPLATE_NAME,
     "device_type": DEVICE_TYPE,
-    "version": "ALL",
-    "model": "ALL"
+    "version": VERSION,
+    "model": MODEL
 }
 
 headers = {
     "Authorization": f"Bearer {CENTRAL_ACCESS_TOKEN}"
 }
 
-# Send the template as multipart/form-data via the 'files' parameter
 with open(FILE_PATH, "rb") as f:
     files = {
         "template": (FILE_PATH, f, "text/plain")
     }
 
-    print(f"[+] Sending POST request to: {url} with name={NEW_TEMPLATE_NAME}")
+    print(f"[+] Creating template '{NEW_TEMPLATE_NAME}' (Model: {MODEL}, Version: {VERSION}) in group '{GROUP_NAME}'...")
     response = requests.post(url, headers=headers, params=params, files=files)
 
 if response.status_code in [200, 201]:
-    print(f"[SUCCESS] Template '{NEW_TEMPLATE_NAME}' successfully created in group '{GROUP_NAME}'!")
+    print(f"[SUCCESS] Template '{NEW_TEMPLATE_NAME}' successfully added to group '{GROUP_NAME}'!")
     print(f"API Response: {response.text}")
 else:
     print(f"[ERROR] Request failed with status code {response.status_code}")
