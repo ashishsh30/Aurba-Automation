@@ -2,16 +2,21 @@ import os
 import requests
 
 # === CONFIGURATION ===
-GROUP_NAME = "Test-new"      # Case-sensitive Group Name in APC
+GROUP_NAME = "Test-new"                   # Your exact target Group Name in APC
 NEW_TEMPLATE_NAME = "Gateway_Template_V2" # Name for your NEW template
-DEVICE_TYPE = "MobilityController"        # Device type
-FILE_PATH = "gateway_template.cfg"        # Template filename in GitHub
+DEVICE_TYPE = "MobilityController"        # Device type for Gateways
+FILE_PATH = "gateway_template.cfg"        # Template file path in GitHub
 # =====================
 
-# HARDCODED APAC-2 API URL (Do NOT use os.getenv here)
-CENTRAL_BASE_URL = "https://apigw-app2-ap.central.arubanetworks.com"
+# Correct API Gateway URL for APAC-1 / APAC-2
+CENTRAL_BASE_URL = "https://api-ap.central.arubanetworks.com"
 CENTRAL_ACCESS_TOKEN = os.getenv("CENTRAL_ACCESS_TOKEN")
 
+if not CENTRAL_ACCESS_TOKEN:
+    print("[ERROR] CENTRAL_ACCESS_TOKEN environment variable is missing.")
+    exit(1)
+
+# Read local template file content
 with open(FILE_PATH, "r") as f:
     template_content = f.read()
 
@@ -32,10 +37,11 @@ headers = {
     "Content-Type": "application/json"
 }
 
+print(f"[+] Sending request to: {url}")
 response = requests.post(url, headers=headers, json=payload)
 
 if response.status_code in [200, 201]:
-    print(f"SUCCESS: Created template '{NEW_TEMPLATE_NAME}' in group '{GROUP_NAME}'")
+    print(f"[SUCCESS] Template '{NEW_TEMPLATE_NAME}' created successfully in group '{GROUP_NAME}'!")
 else:
-    print(f"ERROR ({response.status_code}): {response.text}")
+    print(f"[ERROR] Failed with status code {response.status_code}: {response.text}")
     exit(1)
