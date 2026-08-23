@@ -2,16 +2,16 @@ import os
 import requests
 
 # === EDIT THESE VALUES ===
-GROUP_NAME = "Test-new"      # Replace with your Central Group name
+GROUP_NAME = "YOUR_EXACT_GROUP_NAME"      # Case-sensitive Group Name in APC
 NEW_TEMPLATE_NAME = "Gateway_Template_V2" # Name for your NEW template
-DEVICE_TYPE = "MobilityController"        # Device type shown in APC
-FILE_PATH = "gateway_template.cfg"        # Path to template file in GitHub
+DEVICE_TYPE = "MobilityController"        # Device type
+FILE_PATH = "gateway_template.cfg"        # Template filename in GitHub
 # =========================
 
-CENTRAL_BASE_URL = os.getenv("CENTRAL_BASE_URL", "https://apigw-app2.central.arubanetworks.com")
+# Hardcoded APAC-2 API URL to prevent DNS lookup errors
+CENTRAL_BASE_URL = "https://apigw-app2.central.arubanetworks.com"
 CENTRAL_ACCESS_TOKEN = os.getenv("CENTRAL_ACCESS_TOKEN")
 
-# Read template content directly from repo file
 with open(FILE_PATH, "r") as f:
     template_content = f.read()
 
