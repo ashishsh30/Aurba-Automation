@@ -1,0 +1,28 @@
+name: Push New Template to Aruba Central
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gateway_template.cfg'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Script
+        env:
+          CENTRAL_ACCESS_TOKEN: ${{ secrets.CENTRAL_ACCESS_TOKEN }}
+          CENTRAL_BASE_URL: "https://apigw-uswest_2.central.arubanetworks.com"
+        run: python create_template.py
