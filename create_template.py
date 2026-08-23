@@ -1,47 +1,17 @@
 import os
 import requests
 
-# === CONFIGURATION ===
-GROUP_NAME = "Test-new"                   # Your exact target Group Name in APC
-NEW_TEMPLATE_NAME = "Gateway_Template_V2" # Name for your NEW template
-DEVICE_TYPE = "MobilityController"        # Device type for Gateways
-FILE_PATH = "gateway_template.cfg"        # Template file path in GitHub
-# =====================
+CENTRAL_URL = "https://api-ap.central.arubanetworks.com"
+ACCESS_TOKEN = os.environ.get("CENTRAL_ACCESS_TOKEN")
 
-# Correct API Gateway URL for APAC-1 / APAC-2
-CENTRAL_BASE_URL = "https://api-ap.central.arubanetworks.com"
-CENTRAL_ACCESS_TOKEN = os.getenv("CENTRAL_ACCESS_TOKEN")
-
-if not CENTRAL_ACCESS_TOKEN:
-    print("[ERROR] CENTRAL_ACCESS_TOKEN environment variable is missing.")
-    exit(1)
-
-# Read local template file content
-with open(FILE_PATH, "r") as f:
-    template_content = f.read()
-
-url = f"{CENTRAL_BASE_URL}/configuration/v1/templates"
-
-payload = {
-    "group": GROUP_NAME,
-    "template_name": NEW_TEMPLATE_NAME,
-    "device_type": DEVICE_TYPE,
-    "model": "ALL",
-    "version": "ALL",
-    "template_format": "TEXT",
-    "template_content": template_content
-}
+if not ACCESS_TOKEN:
+    raise ValueError("CENTRAL_ACCESS_TOKEN environment variable is missing.")
 
 headers = {
-    "Authorization": f"Bearer {CENTRAL_ACCESS_TOKEN}",
+    "Authorization": f"Bearer {ACCESS_TOKEN}",
     "Content-Type": "application/json"
 }
 
-print(f"[+] Sending request to: {url}")
-response = requests.post(url, headers=headers, json=payload)
+url = f"{CENTRAL_URL}/configuration/v1/templates"
 
-if response.status_code in [200, 201]:
-    print(f"[SUCCESS] Template '{NEW_TEMPLATE_NAME}' created successfully in group '{GROUP_NAME}'!")
-else:
-    print(f"[ERROR] Failed with status code {response.status_code}: {response.text}")
-    exit(1)
+# Add your payload and POST logic below
