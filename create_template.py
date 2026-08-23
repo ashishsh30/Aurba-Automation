@@ -23,9 +23,26 @@ headers = {
     "Authorization": f"Bearer {CENTRAL_ACCESS_TOKEN}"
 }
 
-url = f"{CENTRAL_BASE_URL}/configuration/v1/groups/{GROUP_NAME}/templates"
+# 1. DELETE existing template using 'template_name' parameter
+delete_url = f"{CENTRAL_BASE_URL}/configuration/v1/groups/{GROUP_NAME}/templates"
+delete_params = {
+    "template_name": TEMPLATE_NAME,
+    "device_type": DEVICE_TYPE,
+    "version": "ALL",
+    "model": "ALL"
+}
 
-params = {
+print(f"[+] Deleting existing template '{TEMPLATE_NAME}' from group '{GROUP_NAME}'...")
+del_resp = requests.delete(delete_url, headers=headers, params=delete_params)
+
+if del_resp.status_code in [200, 204]:
+    print(f"[+] Existing template '{TEMPLATE_NAME}' successfully deleted.")
+else:
+    print(f"[!] Delete response ({del_resp.status_code}): {del_resp.text}")
+
+# 2. POST fresh template using 'name' parameter
+create_url = f"{CENTRAL_BASE_URL}/configuration/v1/groups/{GROUP_NAME}/templates"
+create_params = {
     "name": TEMPLATE_NAME,
     "device_type": DEVICE_TYPE,
     "version": "ALL",
@@ -37,18 +54,11 @@ with open(FILE_PATH, "rb") as f:
         "template": (FILE_PATH, f, "text/plain")
     }
 
-    # First try PATCH to update the existing template
-    print(f"[+] Attempting PATCH update for template '{TEMPLATE_NAME}' in group '{GROUP_NAME}'...")
-    response = requests.patch(url, headers=headers, params=params, files=files)
-
-    # If the template doesn't exist yet (404/400), send POST to create it
-    if response.status_code in [400, 404] and "not found" in response.text.lower():
-        print(f"[+] Template not found via PATCH. Falling back to POST creation...")
-        f.seek(0)
-        response = requests.post(url, headers=headers, params=params, files=files)
+    print(f"[+] Uploading fresh template '{TEMPLATE_NAME}'...")
+    response = requests.post(create_url, headers=headers, params=create_params, files=files)
 
 if response.status_code in [200, 201]:
-    print(f"[SUCCESS] Template '{TEMPLATE_NAME}' successfully updated/created in group '{GROUP_NAME}'!")
+    print(f"[SUCCESS] Template '{TEMPLATE_NAME}' created/updated successfully in group '{GROUP_NAME}'!")
     print(f"API Response: {response.text}")
 else:
     print(f"[ERROR] Request failed with status code {response.status_code}")
