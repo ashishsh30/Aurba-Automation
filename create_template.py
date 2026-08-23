@@ -5,11 +5,12 @@ import requests
 GROUP_NAME = "Test-new"                   # Target group name
 NEW_TEMPLATE_NAME = "Gateway_Template_V3" # Distinct template name
 DEVICE_TYPE = "MobilityController"        # Device type
-FILE_PATH = "gateway_template.cfg"        # Local config template file
 
-# Specify a distinct model or version to coexist with the existing template
-MODEL = "7005"                            # Specific model (e.g., 7005, 7010, 7210, etc.)
-VERSION = "8.10.0.0"                      # Specific version string (or "ALL" if model differs)
+# Supported Aruba Central model strings for Gateways:
+# Options: "70XX", "72XX", "90XX", "92XX", "MC-VA"
+MODEL = "70XX"                            
+VERSION = "ALL"                           # Leave as "ALL" for all firmware versions
+FILE_PATH = "gateway_template.cfg"
 # =====================
 
 CENTRAL_BASE_URL = "https://api-ap.central.arubanetworks.com"
@@ -41,7 +42,7 @@ with open(FILE_PATH, "rb") as f:
         "template": (FILE_PATH, f, "text/plain")
     }
 
-    print(f"[+] Creating template '{NEW_TEMPLATE_NAME}' (Model: {MODEL}, Version: {VERSION}) in group '{GROUP_NAME}'...")
+    print(f"[+] Creating template '{NEW_TEMPLATE_NAME}' for model family '{MODEL}' in group '{GROUP_NAME}'...")
     response = requests.post(url, headers=headers, params=params, files=files)
 
 if response.status_code in [200, 201]:
