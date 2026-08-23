@@ -8,7 +8,6 @@ DEVICE_TYPE = "MobilityController"        # Device type for Gateways
 FILE_PATH = "gateway_template.cfg"        # Local path to config template file
 # =====================
 
-# Confirmed API Gateway URL from your Swagger UI
 CENTRAL_BASE_URL = "https://api-ap.central.arubanetworks.com"
 CENTRAL_ACCESS_TOKEN = os.getenv("CENTRAL_ACCESS_TOKEN")
 
@@ -16,19 +15,17 @@ if not CENTRAL_ACCESS_TOKEN:
     print("[ERROR] CENTRAL_ACCESS_TOKEN environment variable is missing!")
     exit(1)
 
-# Check if template file exists
 if not os.path.exists(FILE_PATH):
     print(f"[ERROR] Template file '{FILE_PATH}' not found in repo!")
     exit(1)
 
-# Read local template file content
 with open(FILE_PATH, "r") as f:
     template_content = f.read()
 
-url = f"{CENTRAL_BASE_URL}/configuration/v1/templates"
+# Fix: Include GROUP_NAME in the endpoint path
+url = f"{CENTRAL_BASE_URL}/configuration/v1/groups/{GROUP_NAME}/templates"
 
 payload = {
-    "group": GROUP_NAME,
     "template_name": NEW_TEMPLATE_NAME,
     "device_type": DEVICE_TYPE,
     "model": "ALL",
