@@ -3,9 +3,9 @@ import requests
 
 # === CONFIGURATION ===
 GROUP_NAME = "Test-new"                   # Target group name in Aruba Central
-TEMPLATE_NAME = "Gateway_Template_V2"     # Template name
+TEMPLATE_NAME = "Gateway_Template_V2"     # Name of the template in Central
 DEVICE_TYPE = "MobilityController"        # Device type
-FILE_PATH = "gateway_template.cfg"        # Local config template file path
+FILE_PATH = "gateway_template.cfg"        # Local config file
 # =====================
 
 CENTRAL_BASE_URL = "https://api-ap.central.arubanetworks.com"
@@ -23,22 +23,9 @@ headers = {
     "Authorization": f"Bearer {CENTRAL_ACCESS_TOKEN}"
 }
 
-# 1. DELETE the existing template using the template_name in the URL path
-delete_url = f"{CENTRAL_BASE_URL}/configuration/v1/groups/{GROUP_NAME}/templates/{TEMPLATE_NAME}"
+url = f"{CENTRAL_BASE_URL}/configuration/v1/groups/{GROUP_NAME}/templates"
 
-print(f"[+] Attempting to delete existing template '{TEMPLATE_NAME}' from group '{GROUP_NAME}'...")
-del_resp = requests.delete(delete_url, headers=headers)
-
-if del_resp.status_code in [200, 204]:
-    print(f"[+] Template '{TEMPLATE_NAME}' successfully deleted.")
-elif del_resp.status_code == 404:
-    print(f"[+] Template '{TEMPLATE_NAME}' not found. Proceeding with creation.")
-else:
-    print(f"[!] Delete response ({del_resp.status_code}): {del_resp.text}")
-
-# 2. POST the fresh template to the group
-create_url = f"{CENTRAL_BASE_URL}/configuration/v1/groups/{GROUP_NAME}/templates"
-create_params = {
+params = {
     "name": TEMPLATE_NAME,
     "device_type": DEVICE_TYPE,
     "version": "ALL",
@@ -50,11 +37,18 @@ with open(FILE_PATH, "rb") as f:
         "template": (FILE_PATH, f, "text/plain")
     }
 
-    print(f"[+] Uploading fresh template '{TEMPLATE_NAME}'...")
-    response = requests.post(create_url, headers=headers, params=create_params, files=files)
+    # First try PATCH to update the existing template
+    print(f"[+] Attempting PATCH update for template '{TEMPLATE_NAME}' in group '{GROUP_NAME}'...")
+    response = requests.patch(url, headers=headers, params=params, files=files)
+
+    # If the template doesn't exist yet (404/400), send POST to create it
+    if response.status_code in [400, 404] and "not found" in response.text.lower():
+        print(f"[+] Template not found via PATCH. Falling back to POST creation...")
+        f.seek(0)
+        response = requests.post(url, headers=headers, params=params, files=files)
 
 if response.status_code in [200, 201]:
-    print(f"[SUCCESS] Template '{TEMPLATE_NAME}' created/updated successfully in group '{GROUP_NAME}'!")
+    print(f"[SUCCESS] Template '{TEMPLATE_NAME}' successfully updated/created in group '{GROUP_NAME}'!")
     print(f"API Response: {response.text}")
 else:
     print(f"[ERROR] Request failed with status code {response.status_code}")
