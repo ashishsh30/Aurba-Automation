@@ -19,10 +19,10 @@ jobs:
 
       - name: Push Variables to Aruba Central Group API
         env:
-          CENTRAL_ACCESS_TOKEN: ${{ secrets.ARUBA_TOKEN }}
+          CENTRAL_ACCESS_TOKEN: ${{ secrets.CENTRAL_ACCESS_TOKEN }}
         run: |
           # Verify access token exists
-          if [ -z "$ARUBA_TOKEN" ]; then
+          if [ -z "$CENTRAL_ACCESS_TOKEN" ]; then
             echo "Error: ARUBA_TOKEN secret is missing."
             exit 1
           fi
@@ -32,6 +32,6 @@ jobs:
 
           # Send POST/PATCH request to Aruba Central Group configuration API
           curl -X POST "${ARUBA_HOST}/configuration/v1/groups/${ARUBA_GROUP_ID}/variables" \
-            -H "Authorization: Bearer ${ARUBA_TOKEN}" \
+            -H "Authorization: Bearer ${CENTRAL_ACCESS_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "$VARS_PAYLOAD"
