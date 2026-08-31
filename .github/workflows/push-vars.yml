@@ -1,29 +1,28 @@
-name: Push Variables to Aruba Central
+name: Push JSON Variables to Aruba Central
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'vars.json'
-  workflow_dispatch:
+      - 'var.json'
+      - 'push_vars.py'
 
 jobs:
-  deploy-vars:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
       - name: Install Dependencies
         run: pip install requests
 
-      - name: Run Variable Upload Script
+      - name: Run Variable Push Script
         env:
           CENTRAL_ACCESS_TOKEN: ${{ secrets.CENTRAL_ACCESS_TOKEN }}
-          ARUBA_GROUP_NAME: "Test-new"
-        run: python upload_vars.py
+        run: python push_vars.py
