@@ -1,0 +1,38 @@
+name: Push Variables to Aruba Central
+
+on:
+  push:
+    paths:
+      - 'vars.json'
+  workflow_dispatch:
+
+env:
+  # Aruba Central AP-East cluster host (from your URL)
+  ARUBA_HOST: "https://app2-ap.central.arubanetworks.com"
+  # Target Group Name shown in your UI screenshot
+  ARUBA_GROUP_NAME: "Test-new"
+
+jobs:
+  push-variables:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Send Variables to Aruba Central Group
+        env:
+          ARUBA_TOKEN: ${{ secrets.ARUBA_TOKEN }}
+        run: |
+          # 1. Check if token is configured in GitHub Secrets
+          if [ -z "$ARUBA_TOKEN" ]; then
+            echo "::error::ARUBA_TOKEN secret is missing! Go to Repo Settings -> Secrets to add it."
+            exit 1
+          fi
+
+          echo "Uploading variables for group: ${ARUBA_GROUP_NAME}"
+
+          # 2. Upload JSON variables file directly to Aruba Central API
+          curl -X POST "${ARUBA_HOST}/configuration/v1/devices/template_variables" \
+            -H "Authorization: Bearer ${ARUBA_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d @vars.json
