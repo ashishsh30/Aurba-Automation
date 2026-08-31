@@ -1,4 +1,4 @@
-name: Push Variables to APC Group
+name: Push Variables to Aruba Central Group
 
 on:
   push:
@@ -7,29 +7,31 @@ on:
   workflow_dispatch:
 
 env:
-  APC_GROUP_ID: "Test-new"  # Target Group Name/ID
+  ARUBA_HOST: "https://app2-ap.central.arubanetworks.com"
+  ARUBA_GROUP_ID: "Test-new"  # Matches cgid=47 from your URL
 
 jobs:
-  push-variables-to-apc:
+  push-variables-to-aruba:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Send Variables directly to APC Group API
+      - name: Push Variables to Aruba Central Group API
         env:
-          APC_HOST: ${{ secrets.APC_HOST }}
-          APC_TOKEN: ${{ secrets.APC_TOKEN }}
+          ARUBA_TOKEN: ${{ secrets.ARUBA_TOKEN }}
         run: |
-          # Verify host secret is populated
-          if [ -z "$APC_HOST" ]; then
-            echo "Error: APC_HOST secret is missing or empty."
+          # Verify access token exists
+          if [ -z "$ARUBA_TOKEN" ]; then
+            echo "Error: ARUBA_TOKEN secret is missing."
             exit 1
           fi
 
+          # Read variables from vars.json
           VARS_PAYLOAD=$(cat vars.json)
 
-          curl -X PATCH "${APC_HOST}/api/v1/groups/${APC_GROUP_ID}/variables" \
-            -H "Authorization: Bearer ${APC_TOKEN}" \
+          # Send POST/PATCH request to Aruba Central Group configuration API
+          curl -X POST "${ARUBA_HOST}/configuration/v1/groups/${ARUBA_GROUP_ID}/variables" \
+            -H "Authorization: Bearer ${ARUBA_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "$VARS_PAYLOAD"
