@@ -8,7 +8,7 @@ on:
 
 env:
   ARUBA_HOST: "https://app2-ap.central.arubanetworks.com"
-  ARUBA_GROUP_ID: "Test-new"  # Matches cgid=47 from your URL
+  ARUBA_GROUP_ID: "47"  # Matches cgid=47 from your URL
 
 jobs:
   push-variables-to-aruba:
