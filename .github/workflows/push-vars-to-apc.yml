@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  APC_GROUP_ID: "Test-new"  # <-- Define your target Group ID or Name here
+  APC_GROUP_ID: "Test-new"  # Target Group Name/ID
 
 jobs:
   push-variables-to-apc:
@@ -17,10 +17,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Send Variables directly to APC Group API
+        env:
+          APC_HOST: ${{ secrets.APC_HOST }}
+          APC_TOKEN: ${{ secrets.APC_TOKEN }}
         run: |
+          # Verify host secret is populated
+          if [ -z "$APC_HOST" ]; then
+            echo "Error: APC_HOST secret is missing or empty."
+            exit 1
+          fi
+
           VARS_PAYLOAD=$(cat vars.json)
 
-          curl -X PATCH "${{ secrets.APC_HOST }}/api/v1/groups/${env.APC_GROUP_ID}/variables" \
-            -H "Authorization: Bearer ${{ secrets.APC_TOKEN }}" \
+          curl -X PATCH "${APC_HOST}/api/v1/groups/${APC_GROUP_ID}/variables" \
+            -H "Authorization: Bearer ${APC_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "$VARS_PAYLOAD"
