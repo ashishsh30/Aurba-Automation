@@ -2,7 +2,7 @@ import os
 import requests
 
 # === CONFIGURATION ===
-FILE_NAME = "var.json"  # Local JSON file name
+FILE_NAME = "vars.json"  # Local JSON file name
 # =====================
 
 # Dynamic path resolution for GitHub Actions / runner environments
