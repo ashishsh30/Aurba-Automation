@@ -19,7 +19,7 @@ jobs:
 
       - name: Push Variables to Aruba Central Group API
         env:
-          ARUBA_TOKEN: ${{ secrets.ARUBA_TOKEN }}
+          CENTRAL_ACCESS_TOKEN: ${{ secrets.ARUBA_TOKEN }}
         run: |
           # Verify access token exists
           if [ -z "$ARUBA_TOKEN" ]; then
