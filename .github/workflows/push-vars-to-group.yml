@@ -1,0 +1,42 @@
+name: Push Variables to AWX Group
+
+on:
+  push:
+    paths:
+      - 'vars.json'
+  workflow_dispatch:
+
+jobs:
+  update-awx-group-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Current Group Variables from AWX
+        id: fetch_current
+        run: |
+          RESPONSE=$(curl -s -X GET "${{ secrets.AWX_HOST }}/api/v2/groups/${{ secrets.AWX_GROUP_ID }}/" \
+            -H "Authorization: Bearer ${{ secrets.AWX_TOKEN }}" \
+            -H "Content-Type: application/json")
+          
+          # Extract existing variables string (or fallback to empty object if null)
+          EXISTING_VARS=$(echo "$RESPONSE" | jq -r '.variables // "{}"')
+          echo "CURRENT_VARS=$EXISTING_VARS" >> $GITHUB_ENV
+
+      - name: Merge and Push Variables to AWX Group
+        run: |
+          # Read new variables from vars.json
+          NEW_VARS=$(cat vars.json)
+          
+          # Merge new variables into existing group variables (preserves existing template/keys)
+          MERGED_VARS=$(echo "$CURRENT_VARS" | jq --argjson new "$NEW_VARS" '. + $new')
+          
+          # Wrap merged variables into AWX PATCH payload format
+          PAYLOAD=$(jq -n --arg vars "$MERGED_VARS" '{variables: $vars}')
+
+          # Send PATCH request to AWX API
+          curl -X PATCH "${{ secrets.AWX_HOST }}/api/v2/groups/${{ secrets.AWX_GROUP_ID }}/" \
+            -H "Authorization: Bearer ${{ secrets.AWX_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
