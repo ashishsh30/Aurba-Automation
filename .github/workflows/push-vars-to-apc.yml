@@ -1,0 +1,26 @@
+name: Push Variables to APC Group
+
+on:
+  push:
+    paths:
+      - 'vars.json'
+  workflow_dispatch:
+
+env:
+  APC_GROUP_ID: "Test_new"  # <-- Define your target Group ID or Name here
+
+jobs:
+  push-variables-to-apc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Send Variables directly to APC Group API
+        run: |
+          VARS_PAYLOAD=$(cat vars.json)
+
+          curl -X PATCH "${{ secrets.APC_HOST }}/api/v1/groups/${env.APC_GROUP_ID}/variables" \
+            -H "Authorization: Bearer ${{ secrets.APC_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$VARS_PAYLOAD"
