@@ -5,9 +5,11 @@ on:
     paths:
       - 'vars.json'
   workflow_dispatch:
-
-env:
-  APC_GROUP_ID: "Test_new"  # <-- Define your target Group ID or Name here
+    inputs:
+      target_group_id:
+        description: 'Enter APC Group ID or Name'
+        required: true
+        default: '5'
 
 jobs:
   push-variables-to-apc:
@@ -18,9 +20,11 @@ jobs:
 
       - name: Send Variables directly to APC Group API
         run: |
+          # Use input value if manually triggered, fallback to group '5' on automatic push
+          GROUP_ID="${{ inputs.target_group_id || '5' }}"
           VARS_PAYLOAD=$(cat vars.json)
 
-          curl -X PATCH "${{ secrets.APC_HOST }}/api/v1/groups/${env.APC_GROUP_ID}/variables" \
+          curl -X PATCH "${{ secrets.APC_HOST }}/api/v1/groups/${GROUP_ID}/variables" \
             -H "Authorization: Bearer ${{ secrets.APC_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$VARS_PAYLOAD"
