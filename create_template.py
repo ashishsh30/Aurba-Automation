@@ -2,13 +2,13 @@ import os
 import requests
 
 # === CONFIGURATION ===
-GROUP_NAME = "Test-new"                   # Target group name in Aruba Central
+GROUP_NAME = "store"                   # Target group name in Aruba Central
 TEMPLATE_NAME = "Gateway_Template_V2"     # Template name
 DEVICE_TYPE = "MobilityController"        # Device type
 FILE_PATH = "gateway_template.cfg"        # Local path to config template file
 # =====================
 
-CENTRAL_BASE_URL = "https://api-ap.central.arubanetworks.com"
+CENTRAL_BASE_URL = "apigw-apacsouth.central.arubanetworks.com"
 CENTRAL_ACCESS_TOKEN = os.getenv("CENTRAL_ACCESS_TOKEN")
 
 if not CENTRAL_ACCESS_TOKEN:
