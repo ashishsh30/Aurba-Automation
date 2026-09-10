@@ -8,7 +8,7 @@ DEVICE_TYPE = "MobilityController"        # Device type
 FILE_PATH = "gateway_template.cfg"        # Local path to config template file
 # =====================
 
-CENTRAL_BASE_URL = "apigw-apacsouth.central.arubanetworks.com"
+CENTRAL_BASE_URL = "https://apigw-apacsouth.central.arubanetworks.com"
 CENTRAL_ACCESS_TOKEN = os.getenv("CENTRAL_ACCESS_TOKEN")
 
 if not CENTRAL_ACCESS_TOKEN:
