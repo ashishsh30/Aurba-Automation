@@ -2,7 +2,7 @@ import os
 import requests
 
 # === CONFIGURATION ===
-GROUP_NAME = "store"                   # Target group name in Aruba Central
+GROUP_NAME = "Store"                   # Target group name in Aruba Central
 TEMPLATE_NAME = "Gateway_Template_V2"     # Template name
 DEVICE_TYPE = "MobilityController"        # Device type
 FILE_PATH = "gateway_template.cfg"        # Local path to config template file
